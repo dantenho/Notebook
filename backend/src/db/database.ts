@@ -1,7 +1,18 @@
 import Database from 'better-sqlite3';
 import path from 'path';
+import fs from 'fs';
 
-const dbPath = path.join(__dirname, '../../database.sqlite');
+// Use environment variable for database path (set by Electron in production)
+// or fallback to local development path
+const dbPath = process.env.DATABASE_PATH || path.join(__dirname, '../../database.sqlite');
+
+// Ensure directory exists
+const dbDir = path.dirname(dbPath);
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+}
+
+console.log('Database path:', dbPath);
 const db = new Database(dbPath);
 
 // Enable foreign keys
