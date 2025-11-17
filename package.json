@@ -14,23 +14,30 @@
     "build": "npm run build:backend && npm run build:frontend",
     "build:backend": "cd backend && npm run build",
     "build:frontend": "cd frontend && npm run build",
+    "prebuild": "node scripts/check-build.js",
     "package": "npm run build && electron-builder",
-    "package:win": "npm run build && electron-builder --win",
+    "package:win": "npm run build && electron-builder --win --x64",
     "package:mac": "npm run build && electron-builder --mac",
-    "package:linux": "npm run build && electron-builder --linux"
+    "package:linux": "npm run build && electron-builder --linux",
+    "release:win": "npm run build && electron-builder --win --x64 --publish never",
+    "clean": "rimraf dist-electron backend/dist frontend/dist"
   },
   "build": {
     "appId": "com.studynotebook.app",
     "productName": "Study Notebook",
+    "copyright": "Copyright © 2024 Study Notebook",
     "directories": {
-      "output": "dist-electron"
+      "output": "dist-electron",
+      "buildResources": "build"
     },
     "files": [
       "electron/**/*",
       "backend/dist/**/*",
       "backend/node_modules/**/*",
       "backend/package.json",
-      "frontend/dist/**/*"
+      "frontend/dist/**/*",
+      "!backend/uploads",
+      "!backend/database.sqlite"
     ],
     "extraResources": [
       {
@@ -39,18 +46,52 @@
       }
     ],
     "win": {
-      "target": ["nsis"],
-      "icon": "build/icon.ico"
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "${productName}-Setup-${version}.${ext}",
+      "publisherName": "Study Notebook",
+      "verifyUpdateCodeSignature": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Study Notebook",
+      "license": "LICENSE",
+      "warningsAsErrors": false,
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true,
+      "menuCategory": true,
+      "displayLanguageSelector": false,
+      "installerLanguages": ["pt_BR", "en_US"]
     },
     "mac": {
       "target": ["dmg"],
       "icon": "build/icon.icns",
-      "category": "public.app-category.productivity"
+      "category": "public.app-category.productivity",
+      "artifactName": "${productName}-${version}.${ext}",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
     },
     "linux": {
       "target": ["AppImage", "deb"],
       "icon": "build/icon.png",
-      "category": "Office"
+      "category": "Office",
+      "artifactName": "${productName}-${version}.${ext}",
+      "synopsis": "Aplicativo de anotações com IA focado em Medicina/Revalida",
+      "description": "Study Notebook é um aplicativo desktop de anotações com sistema de fontes (PDF, Web, PubMed, SciELO) e integração com IA para estudantes de medicina."
     }
   },
   "dependencies": {
@@ -60,6 +101,7 @@
     "electron": "^28.0.0",
     "electron-builder": "^24.9.1",
     "concurrently": "^8.2.2",
-    "wait-on": "^7.2.0"
+    "wait-on": "^7.2.0",
+    "rimraf": "^5.0.5"
   }
 }
