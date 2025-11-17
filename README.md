@@ -35,6 +35,12 @@ cd frontend && npm run dev
 - **Múltiplos cadernos**: Não limitado a um assunto - organize tudo em um só lugar!
 - **Editor rico**: Suporte a formatação de texto, tabelas, listas, imagens, código
 - **Diagramas Mermaid**: Renderização automática de diagramas com linhas corretas
+- **Sistema de Fontes** (similar ao NotebookLM):
+  - Upload de PDFs (artigos, livros, apostilas)
+  - Extração de conteúdo web
+  - Busca e importação do PubMed
+  - Busca e importação do SciELO
+  - IA usa fontes automaticamente como contexto
 - **Integração com IA**:
   - OpenAI (GPT-4, GPT-3.5)
   - Anthropic Claude (com Extended Thinking)
@@ -190,6 +196,60 @@ graph TD
 \`\`\`
 
 O diagrama será renderizado automaticamente com linhas corretas (não apenas `A---------E`).
+
+### Sistema de Fontes (Similar ao NotebookLM)
+
+Adicione materiais de referência às suas notas e a IA os usará automaticamente como contexto!
+
+**Tipos de fontes suportadas:**
+
+1. **PDF** 📄
+   - Faça upload de artigos, livros, apostilas
+   - Extração automática de texto
+   - Limite: 50MB
+
+2. **Web** 🌐
+   - Extraia conteúdo de páginas web
+   - Artigos, blogs, notícias
+   - Remoção automática de anúncios e navegação
+
+3. **PubMed** 🎓
+   - Busque artigos científicos
+   - Importação direta com metadados
+   - Ideal para medicina e pesquisa
+
+4. **SciELO** 📚
+   - Busque artigos em português/espanhol
+   - Foco em literatura latino-americana
+   - Acesso a texto completo quando disponível
+
+**Como usar:**
+
+1. Abra uma nota
+2. Clique no botão "Fontes" no topo
+3. Escolha o tipo de fonte (PDF, Web, PubMed ou SciELO)
+4. Adicione o material
+5. A IA usará automaticamente as fontes como referência!
+
+**Exemplo prático (Medicina/Revalida):**
+
+```
+Nota: "IAMCEST - Tratamento"
+
+Fontes adicionadas:
+- PDF: Diretriz Brasileira de IAM (SBC)
+- PubMed: "STEMI management 2024"
+- SciELO: "Tratamento do infarto no Brasil"
+
+Prompt para IA:
+"Com base nas fontes, crie um protocolo de atendimento
+ao IAMCEST focado nas diretrizes brasileiras"
+
+Resultado: Protocolo detalhado baseado nas 3 fontes,
+          combinando evidências e práticas locais
+```
+
+**Veja o guia completo:** [SOURCES_GUIDE.md](SOURCES_GUIDE.md)
 
 ### Usando a IA
 

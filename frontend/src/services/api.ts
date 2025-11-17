@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Space, Stack, Notebook, Note, AISettings, AIResponse } from '../types';
+import type { Space, Stack, Notebook, Note, AISettings, AIResponse, Source, PubMedSearchResult, SciELOSearchResult } from '../types';
 
 const api = axios.create({
   baseURL: '/api',
@@ -59,6 +59,37 @@ export const aiApi = {
       thinking: settings.thinking,
     }),
   checkLlamaHealth: () => api.get<{ healthy: boolean }>('/ai/llama/health'),
+};
+
+// Sources
+export const sourcesApi = {
+  getByNoteId: (noteId: number) => api.get<Source[]>(`/sources/note/${noteId}`),
+  getById: (id: number) => api.get<Source>(`/sources/${id}`),
+  uploadPDF: (noteId: number, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('noteId', noteId.toString());
+    return api.post<Source>('/sources/pdf', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+  extractWeb: (noteId: number, url: string) =>
+    api.post<Source>('/sources/web', { noteId, url }),
+  searchPubMed: (query: string, max?: number) =>
+    api.get<PubMedSearchResult[]>('/sources/pubmed/search', {
+      params: { q: query, max },
+    }),
+  fetchPubMed: (noteId: number, pmid: string) =>
+    api.post<Source>('/sources/pubmed', { noteId, pmid }),
+  searchSciELO: (query: string, max?: number) =>
+    api.get<SciELOSearchResult[]>('/sources/scielo/search', {
+      params: { q: query, max },
+    }),
+  fetchSciELO: (noteId: number, url: string) =>
+    api.post<Source>('/sources/scielo', { noteId, url }),
+  delete: (id: number) => api.delete(`/sources/${id}`),
 };
 
 export default api;

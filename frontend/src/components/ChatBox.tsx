@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { Send, Settings, Loader2, Brain } from 'lucide-react';
 import { useStore } from '../store';
 import { aiApi } from '../services/api';
+import type { Source } from '../types';
 
 interface ChatBoxProps {
   onInsertText: (text: string) => void;
   currentContent: string;
+  sources?: Source[];
 }
 
-export default function ChatBox({ onInsertText, currentContent }: ChatBoxProps) {
+export default function ChatBox({ onInsertText, currentContent, sources = [] }: ChatBoxProps) {
   const { aiSettings, setAISettings } = useStore();
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,7 +35,26 @@ export default function ChatBox({ onInsertText, currentContent }: ChatBoxProps) 
     setThinkingText('');
 
     try {
-      const response = await aiApi.generate(aiSettings, prompt, currentContent);
+      // Build context with sources
+      let context = currentContent;
+
+      if (sources.length > 0) {
+        let sourcesContext = '\n\n=== FONTES DE REFERÊNCIA ===\n\n';
+        sources.forEach((source, index) => {
+          sourcesContext += `Fonte ${index + 1}: ${source.title}\n`;
+          if (source.content) {
+            // Limit source content to avoid token overflow
+            const maxLength = 2000;
+            const content = source.content.length > maxLength
+              ? source.content.substring(0, maxLength) + '...'
+              : source.content;
+            sourcesContext += `${content}\n\n`;
+          }
+        });
+        context = currentContent + sourcesContext;
+      }
+
+      const response = await aiApi.generate(aiSettings, prompt, context);
 
       if (response.data.thinking) {
         setThinkingText(response.data.thinking);
@@ -145,6 +166,15 @@ export default function ChatBox({ onInsertText, currentContent }: ChatBoxProps) 
       )}
 
       <div className="p-4">
+        {sources.length > 0 && (
+          <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded text-blue-700 text-sm flex items-center gap-2">
+            <Brain size={14} />
+            <span>
+              {sources.length} {sources.length === 1 ? 'fonte' : 'fontes'} de referência {sources.length === 1 ? 'será usada' : 'serão usadas'} pela IA
+            </span>
+          </div>
+        )}
+
         <div className="flex gap-2">
           <button
             onClick={() => setShowSettings(!showSettings)}
@@ -159,7 +189,7 @@ export default function ChatBox({ onInsertText, currentContent }: ChatBoxProps) 
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && !loading && handleGenerate()}
-            placeholder="Digite um prompt para a IA editar/gerar texto..."
+            placeholder={sources.length > 0 ? "A IA usará suas fontes como referência..." : "Digite um prompt para a IA editar/gerar texto..."}
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             disabled={loading}
           />

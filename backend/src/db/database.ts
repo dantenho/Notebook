@@ -53,6 +53,19 @@ db.exec(`
     is_default INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
+
+  CREATE TABLE IF NOT EXISTS sources (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    note_id INTEGER NOT NULL,
+    type TEXT NOT NULL CHECK(type IN ('pdf', 'web', 'pubmed', 'scielo')),
+    title TEXT NOT NULL,
+    url TEXT,
+    file_path TEXT,
+    content TEXT,
+    metadata TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE
+  );
 `);
 
 export default db;

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../store';
-import { notesApi } from '../services/api';
+import { notesApi, sourcesApi } from '../services/api';
 import Editor from '../components/Editor';
 import ChatBox from '../components/ChatBox';
-import { Save, FileText } from 'lucide-react';
+import SourceManager from '../components/SourceManager';
+import { Save, FileText, BookOpen } from 'lucide-react';
+import type { Source } from '../types';
 
 export default function NotePage() {
   const { selectedNote, setSelectedNote } = useStore();
@@ -11,13 +13,26 @@ export default function NotePage() {
   const [title, setTitle] = useState('');
   const [saving, setSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [showSources, setShowSources] = useState(false);
+  const [sources, setSources] = useState<Source[]>([]);
 
   useEffect(() => {
     if (selectedNote) {
       setContent(selectedNote.content || '');
       setTitle(selectedNote.title || '');
+      loadSources();
     }
   }, [selectedNote]);
+
+  const loadSources = async () => {
+    if (!selectedNote) return;
+    try {
+      const response = await sourcesApi.getByNoteId(selectedNote.id!);
+      setSources(response.data);
+    } catch (error) {
+      console.error('Error loading sources:', error);
+    }
+  };
 
   const saveNote = async () => {
     if (!selectedNote) return;
@@ -72,14 +87,27 @@ export default function NotePage() {
           className="text-2xl font-bold border-none focus:outline-none flex-1"
           placeholder="Título da nota"
         />
-        <button
-          onClick={saveNote}
-          disabled={saving}
-          className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
-        >
-          <Save size={18} />
-          {saving ? 'Salvando...' : 'Salvar'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowSources(!showSources)}
+            className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
+              showSources
+                ? 'bg-blue-100 text-blue-700'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            <BookOpen size={18} />
+            Fontes ({sources.length})
+          </button>
+          <button
+            onClick={saveNote}
+            disabled={saving}
+            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
+          >
+            <Save size={18} />
+            {saving ? 'Salvando...' : 'Salvar'}
+          </button>
+        </div>
       </div>
 
       {lastSaved && (
@@ -88,11 +116,21 @@ export default function NotePage() {
         </div>
       )}
 
+      {showSources && (
+        <div className="border-b border-gray-200 p-4 bg-gray-50">
+          <SourceManager noteId={selectedNote.id!} onSourcesUpdate={loadSources} />
+        </div>
+      )}
+
       <div className="flex-1 overflow-hidden">
         <Editor content={content} onChange={setContent} />
       </div>
 
-      <ChatBox onInsertText={handleInsertText} currentContent={content} />
+      <ChatBox
+        onInsertText={handleInsertText}
+        currentContent={content}
+        sources={sources}
+      />
     </div>
   );
 }

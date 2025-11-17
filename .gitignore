@@ -13,6 +13,9 @@ build/
 *.sqlite-journal
 *.db
 
+# Uploads
+backend/uploads/
+
 # Environment variables
 .env
 .env.local

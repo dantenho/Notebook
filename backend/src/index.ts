@@ -6,6 +6,7 @@ import stacksRouter from './routes/stacks';
 import notebooksRouter from './routes/notebooks';
 import notesRouter from './routes/notes';
 import aiRouter from './routes/ai';
+import sourcesRouter from './routes/sources';
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use('/api/stacks', stacksRouter);
 app.use('/api/notebooks', notebooksRouter);
 app.use('/api/notes', notesRouter);
 app.use('/api/ai', aiRouter);
+app.use('/api/sources', sourcesRouter);
 
 // Health check
 app.get('/api/health', (req, res) => {
