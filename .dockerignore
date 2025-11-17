@@ -1,0 +1,90 @@
+# ═══════════════════════════════════════════════════════════════
+# .dockerignore - Arquivos a ignorar no build Docker
+# ═══════════════════════════════════════════════════════════════
+
+# Node modules (serão instalados no container)
+**/node_modules
+**/npm-debug.log
+**/.npm
+
+# Dist folders (serão buildados no container)
+backend/dist
+frontend/dist
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDEs
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Env files (usaremos docker-compose env)
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Test files
+**/__tests__
+**/*.test.js
+**/*.test.ts
+**/*.spec.js
+**/*.spec.ts
+coverage/
+.nyc_output/
+
+# Database files (serão criados em volumes)
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.db
+
+# Uploads (serão gerenciados em volumes)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Build artifacts
+*.tsbuildinfo
+build/
+dist/
+
+# Documentation
+*.md
+!README.md
+docs/
+RELATORIO_VALIDACAO.md
+CODIGO_AVALIACAO.md
+OTIMIZACOES_UI_TRILHAS.md
+
+# Scripts de desenvolvimento
+scripts/
+backend/src/scripts/
+
+# Electron specific (não usado no Docker)
+electron/
+*.exe
+*.dmg
+*.AppImage
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Package lock (usamos npm ci que usa o lock já copiado)
+# Não ignorar! Docker precisa deles
+# package-lock.json
