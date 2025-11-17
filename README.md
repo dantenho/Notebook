@@ -1,10 +1,38 @@
 # Study Notebook - Aplicativo de Anotações com IA
 
-Um aplicativo de notebook de estudos similar ao Evernote, mas com hierarquia de 4 níveis (Spaces > Stacks > Notebooks > Notes) e integração com modelos de IA para edição assistida de texto.
+Um aplicativo de anotações completo similar ao Evernote, mas com hierarquia de 4 níveis (Spaces > Stacks > Notebooks > Notes) e integração com modelos de IA para edição assistida de texto.
+
+**Organize qualquer tipo de conteúdo**: Medicina, Tecnologia, Idiomas, Projetos Pessoais, Fitness, Estudos, Trabalho, etc!
+
+## Quickstart
+
+```bash
+# 1. Instalar dependências
+cd backend && npm install
+cd ../frontend && npm install
+
+# 2. Iniciar backend (terminal 1)
+cd backend && npm run dev
+
+# 3. Iniciar frontend (terminal 2)
+cd frontend && npm run dev
+
+# 4. Acessar
+# Frontend: http://localhost:3000
+# Backend: http://localhost:3001
+
+# 5. (Opcional) Popular com dados de exemplo
+./scripts/helper.sh populate_test_data
+```
 
 ## Características
 
 - **Hierarquia de 4 níveis**: Spaces → Stacks → Notebooks → Notes
+  - Crie quantos Spaces quiser (Medicina, Tecnologia, Idiomas, etc.)
+  - Organize seus conteúdos em Stacks (categorias dentro de cada Space)
+  - Subdivida em Notebooks (tópicos específicos)
+  - Adicione Notes (suas anotações)
+- **Múltiplos cadernos**: Não limitado a um assunto - organize tudo em um só lugar!
 - **Editor rico**: Suporte a formatação de texto, tabelas, listas, imagens, código
 - **Diagramas Mermaid**: Renderização automática de diagramas com linhas corretas
 - **Integração com IA**:
@@ -65,6 +93,31 @@ npm run dev
 
 O frontend estará rodando em `http://localhost:3000`
 
+### 3. Helper Script (Opcional)
+
+Para facilitar o desenvolvimento, use o script auxiliar:
+
+```bash
+# Tornar executável (já está)
+chmod +x scripts/helper.sh
+
+# Executar menu interativo
+./scripts/helper.sh
+
+# Ou usar comandos diretos
+./scripts/helper.sh setup_project        # Setup completo
+./scripts/helper.sh populate_test_data   # Popular com dados de exemplo
+./scripts/helper.sh health_check         # Verificar status
+./scripts/helper.sh db_stats             # Ver estatísticas
+```
+
+O helper script oferece:
+- Setup automático do projeto
+- Popular banco com dados de exemplo de múltiplos assuntos
+- Testes de API e IA
+- Backups e estatísticas do banco
+- Health checks completos
+
 ## Uso
 
 ### Criando a Hierarquia
@@ -74,16 +127,46 @@ O frontend estará rodando em `http://localhost:3000`
 3. **Criar Notebook**: Passe o mouse sobre um Stack e clique no ícone `+`
 4. **Criar Note**: Passe o mouse sobre um Notebook e clique no ícone `+`
 
-### Exemplo de Hierarquia
+### Exemplos de Hierarquia
+
+**Organize qualquer tipo de conteúdo:**
 
 ```
-Medicina (Space)
-├── Anatomia (Stack)
-│   └── Geral (Notebook)
-│       └── Introdução (Note)
-└── Cardiologia (Stack)
-    └── IAM (Notebook)
-        └── IAMCEST (Note)
+📁 Medicina (Space)
+  📚 Anatomia (Stack)
+    📓 Geral (Notebook)
+      📄 Introdução (Note)
+    📓 Sistema Cardiovascular (Notebook)
+      📄 Anatomia do Coração (Note)
+  📚 Cardiologia (Stack)
+    📓 IAM (Notebook)
+      📄 IAMCEST (Note)
+      📄 IAMSEST (Note)
+    📓 Arritmias (Notebook)
+
+📁 Tecnologia (Space)
+  📚 Programação (Stack)
+    📓 JavaScript (Notebook)
+      📄 ES6+ Features (Note)
+      📄 Async/Await (Note)
+    📓 React (Notebook)
+      📄 Hooks (Note)
+  📚 DevOps (Stack)
+    📓 Docker (Notebook)
+    📓 Kubernetes (Notebook)
+
+📁 Idiomas (Space)
+  📚 Inglês (Stack)
+    📓 Vocabulário (Notebook)
+    📓 Gramática (Notebook)
+  📚 Espanhol (Stack)
+    📓 Básico (Notebook)
+
+📁 Projetos Pessoais (Space)
+  📚 Casa (Stack)
+    📓 Reformas (Notebook)
+  📚 Viagens (Stack)
+    📓 Europa 2024 (Notebook)
 ```
 
 ### Editor de Texto
