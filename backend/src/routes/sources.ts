@@ -11,9 +11,14 @@ import { SciELOService } from '../services/scieloService';
 const router = Router();
 
 // Configure multer for PDF uploads
+// Use environment variable for uploads path (set by Electron in production)
+const getUploadsDir = () => {
+  return process.env.UPLOADS_PATH || path.join(__dirname, '../../uploads');
+};
+
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '../../uploads');
+    const uploadDir = getUploadsDir();
     try {
       await fs.mkdir(uploadDir, { recursive: true });
       cb(null, uploadDir);
