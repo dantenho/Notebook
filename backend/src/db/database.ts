@@ -193,12 +193,117 @@ db.exec(`
     -- Cascade: deletar nota deleta todas suas fontes
     FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE
   );
+
+  -- ==================================================================
+  -- TABELA: learning_trails (Trilhas de Aprendizado)
+  -- ==================================================================
+  -- Sistema de trilhas para organizar estudos em sequências lógicas.
+  -- Exemplo: "Cardiologia Básica" → contém notas em ordem de estudo
+  --
+  CREATE TABLE IF NOT EXISTS learning_trails (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,  -- ID único da trilha
+    name TEXT NOT NULL,                    -- Nome da trilha (ex: "Cardiologia para Revalida")
+    description TEXT,                      -- Descrição da trilha
+    space_id INTEGER,                      -- Space relacionado (opcional)
+    color TEXT DEFAULT '#8b5cf6',          -- Cor da trilha
+    estimated_hours INTEGER DEFAULT 0,     -- Horas estimadas para completar
+    difficulty TEXT CHECK(difficulty IN ('beginner', 'intermediate', 'advanced')),  -- Dificuldade
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (space_id) REFERENCES spaces(id) ON DELETE SET NULL
+  );
+
+  -- ==================================================================
+  -- TABELA: trail_items (Itens da Trilha)
+  -- ==================================================================
+  -- Notas que fazem parte de uma trilha, em ordem específica.
+  --
+  CREATE TABLE IF NOT EXISTS trail_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,  -- ID único do item
+    trail_id INTEGER NOT NULL,             -- ID da trilha
+    note_id INTEGER NOT NULL,              -- ID da nota
+    order_index INTEGER NOT NULL,          -- Ordem na trilha (0, 1, 2, ...)
+    is_required INTEGER DEFAULT 1,         -- 1 = obrigatória, 0 = opcional
+    estimated_minutes INTEGER DEFAULT 30,  -- Tempo estimado para estudar
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (trail_id) REFERENCES learning_trails(id) ON DELETE CASCADE,
+    FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE,
+    UNIQUE(trail_id, note_id)  -- Mesma nota não pode aparecer 2x na trilha
+  );
+
+  -- ==================================================================
+  -- TABELA: study_progress (Progresso de Estudos)
+  -- ==================================================================
+  -- Rastreia o progresso do usuário em cada nota.
+  -- Sistema de revisão espaçada integrado.
+  --
+  CREATE TABLE IF NOT EXISTS study_progress (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,  -- ID único do progresso
+    note_id INTEGER NOT NULL,              -- ID da nota estudada
+    status TEXT NOT NULL DEFAULT 'not_started' CHECK(status IN
+      ('not_started', 'studying', 'completed', 'mastered')),  -- Status do estudo
+    confidence_level INTEGER DEFAULT 0 CHECK(confidence_level BETWEEN 0 AND 100),  -- Confiança (0-100%)
+    last_studied DATETIME,                 -- Última vez que estudou
+    next_review DATETIME,                  -- Próxima revisão (spaced repetition)
+    review_count INTEGER DEFAULT 0,        -- Quantas vezes já revisou
+    time_spent_minutes INTEGER DEFAULT 0,  -- Tempo total gasto estudando
+    notes TEXT,                            -- Anotações sobre o estudo
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE,
+    UNIQUE(note_id)  -- Uma linha por nota
+  );
+
+  -- ==================================================================
+  -- TABELA: study_sessions (Sessões de Estudo)
+  -- ==================================================================
+  -- Registra cada sessão de estudo para analytics.
+  --
+  CREATE TABLE IF NOT EXISTS study_sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,  -- ID único da sessão
+    note_id INTEGER NOT NULL,              -- Nota estudada
+    trail_id INTEGER,                      -- Trilha relacionada (opcional)
+    started_at DATETIME DEFAULT CURRENT_TIMESTAMP,  -- Início da sessão
+    ended_at DATETIME,                     -- Fim da sessão
+    duration_minutes INTEGER,              -- Duração em minutos
+    quality_rating INTEGER CHECK(quality_rating BETWEEN 1 AND 5),  -- Avaliação da sessão (1-5)
+    FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE,
+    FOREIGN KEY (trail_id) REFERENCES learning_trails(id) ON DELETE SET NULL
+  );
+
+  -- ==================================================================
+  -- TABELA: tags (Tags para Organização)
+  -- ==================================================================
+  -- Sistema de tags para categorização cruzada.
+  --
+  CREATE TABLE IF NOT EXISTS tags (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,  -- ID único da tag
+    name TEXT NOT NULL UNIQUE,             -- Nome da tag (ex: "importante", "revisar")
+    color TEXT DEFAULT '#gray-500',        -- Cor da tag
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  -- ==================================================================
+  -- TABELA: note_tags (Relação Nota-Tag)
+  -- ==================================================================
+  -- Tabela de junção many-to-many entre notas e tags.
+  --
+  CREATE TABLE IF NOT EXISTS note_tags (
+    note_id INTEGER NOT NULL,              -- ID da nota
+    tag_id INTEGER NOT NULL,               -- ID da tag
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE,
+    PRIMARY KEY (note_id, tag_id)  -- Evita duplicatas
+  );
 `);
 
 // ===================================================================
 // LOG DE INICIALIZAÇÃO
 // ===================================================================
 console.log('✅ Banco de dados inicializado com sucesso');
-console.log('📊 Tabelas criadas: spaces, stacks, notebooks, notes, sources, ai_settings');
+console.log('📊 Tabelas principais: spaces, stacks, notebooks, notes, sources, ai_settings');
+console.log('🎓 Tabelas de aprendizado: learning_trails, trail_items, study_progress, study_sessions');
+console.log('🏷️  Tabelas de organização: tags, note_tags');
 
 export default db;
