@@ -4,9 +4,12 @@ node_modules/
 
 # Build outputs
 dist/
-build/
-*/dist/
-*/build/
+backend/dist/
+frontend/dist/
+dist-electron/
+*.exe
+*.zip
+*.asar
 
 # Database
 *.sqlite
