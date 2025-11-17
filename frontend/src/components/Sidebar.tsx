@@ -2,15 +2,12 @@ import { useEffect, useState } from 'react';
 import { ChevronRight, ChevronDown, Plus, FolderOpen, FileText } from 'lucide-react';
 import { useStore } from '../store';
 import { spacesApi, stacksApi, notebooksApi, notesApi } from '../services/api';
-import type { Space, Stack, Notebook, Note } from '../types';
+import type { Stack, Notebook, Note } from '../types';
 
 export default function Sidebar() {
   const {
     spaces,
     setSpaces,
-    setStacks,
-    setNotebooks,
-    setNotes,
     setSelectedNote,
   } = useStore();
 
