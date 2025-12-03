@@ -105,7 +105,9 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS spaces (
     id INTEGER PRIMARY KEY AUTOINCREMENT,  -- ID único do espaço
     name TEXT NOT NULL,                    -- Nome do espaço (ex: "Medicina")
+    description TEXT,                      -- Descrição do espaço
     color TEXT DEFAULT '#3b82f6',          -- Cor para identificação visual
+    icon TEXT DEFAULT '📚',                -- Ícone/emoji do espaço
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,  -- Data de criação
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP   -- Data de última atualização
   );
@@ -119,7 +121,10 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS stacks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,  -- ID único da pilha
     name TEXT NOT NULL,                    -- Nome da pilha (ex: "Cardiologia")
+    description TEXT,                      -- Descrição da pilha
     space_id INTEGER NOT NULL,             -- ID do espaço pai
+    color TEXT DEFAULT '#6366f1',          -- Cor para identificação visual
+    icon TEXT DEFAULT '📚',                -- Ícone/emoji da pilha
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     -- Cascade: deletar espaço deleta todas suas pilhas
@@ -135,7 +140,10 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS notebooks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,  -- ID único do caderno
     name TEXT NOT NULL,                    -- Nome do caderno (ex: "IAM")
+    description TEXT,                      -- Descrição do caderno
     stack_id INTEGER NOT NULL,             -- ID da pilha pai
+    color TEXT DEFAULT '#8b5cf6',          -- Cor para identificação visual
+    icon TEXT DEFAULT '📓',                -- Ícone/emoji do caderno
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     -- Cascade: deletar pilha deleta todos seus cadernos
@@ -206,6 +214,7 @@ db.exec(`
     description TEXT,                      -- Descrição da trilha
     space_id INTEGER,                      -- Space relacionado (opcional)
     color TEXT DEFAULT '#8b5cf6',          -- Cor da trilha
+    icon TEXT DEFAULT '🎯',                -- Ícone/emoji da trilha
     estimated_hours INTEGER DEFAULT 0,     -- Horas estimadas para completar
     difficulty TEXT CHECK(difficulty IN ('beginner', 'intermediate', 'advanced')),  -- Dificuldade
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -296,6 +305,28 @@ db.exec(`
     FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE,
     PRIMARY KEY (note_id, tag_id)  -- Evita duplicatas
   );
+
+  -- ==================================================================
+  -- TABELA: user_settings (Configurações de Usuário)
+  -- ==================================================================
+  -- Armazena preferências e customizações do usuário.
+  -- Singleton: apenas 1 registro (id = 1).
+  --
+  CREATE TABLE IF NOT EXISTS user_settings (
+    id INTEGER PRIMARY KEY CHECK(id = 1),  -- Sempre id = 1 (singleton)
+    avatar TEXT DEFAULT '👤',              -- Avatar do usuário (emoji ou URL)
+    display_name TEXT DEFAULT 'Estudante', -- Nome de exibição
+    theme TEXT DEFAULT 'light' CHECK(theme IN ('light', 'dark', 'auto')),  -- Tema
+    accent_color TEXT DEFAULT '#3b82f6',   -- Cor de destaque
+    font_size TEXT DEFAULT 'medium' CHECK(font_size IN ('small', 'medium', 'large')),  -- Tamanho de fonte
+    compact_mode INTEGER DEFAULT 0,        -- 1 = modo compacto
+    show_icons INTEGER DEFAULT 1,          -- 1 = mostrar ícones
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  -- Inserir configurações padrão se não existir
+  INSERT OR IGNORE INTO user_settings (id) VALUES (1);
 `);
 
 // ===================================================================
@@ -305,5 +336,6 @@ console.log('✅ Banco de dados inicializado com sucesso');
 console.log('📊 Tabelas principais: spaces, stacks, notebooks, notes, sources, ai_settings');
 console.log('🎓 Tabelas de aprendizado: learning_trails, trail_items, study_progress, study_sessions');
 console.log('🏷️  Tabelas de organização: tags, note_tags');
+console.log('⚙️  Customização: user_settings');
 
 export default db;

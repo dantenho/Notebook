@@ -36,6 +36,8 @@ import notebooksRouter from './routes/notebooks';// Rotas de Cadernos
 import notesRouter from './routes/notes';        // Rotas de Notas
 import aiRouter from './routes/ai';              // Rotas de IA
 import sourcesRouter from './routes/sources';    // Rotas de Fontes/Referências
+import userSettingsRouter from './routes/user-settings';  // Rotas de Configurações
+import iconsRouter from './routes/icons';        // Rotas de Ícones
 
 // ===================================================================
 // CONFIGURAÇÃO DE VARIÁVEIS DE AMBIENTE
@@ -167,6 +169,22 @@ app.use('/api/ai', aiRouter);
  * - scielo: Artigos científicos do SciELO
  */
 app.use('/api/sources', sourcesRouter);
+
+/**
+ * ROTAS DE CUSTOMIZAÇÃO
+ *
+ * /api/user-settings
+ *   - GET  /       → Buscar configurações do usuário
+ *   - PUT  /       → Atualizar configurações
+ *   - POST /reset  → Resetar para padrões
+ *
+ * /api/icons
+ *   - GET  /         → Lista todos os ícones por categoria
+ *   - GET  /avatars  → Lista avatares disponíveis
+ *   - GET  /search   → Busca ícones por categoria
+ */
+app.use('/api/user-settings', userSettingsRouter);
+app.use('/api/icons', iconsRouter);
 
 // ===================================================================
 // ROTA DE HEALTH CHECK
